@@ -1,1 +1,45 @@
-<p>login works!</p>
+<div class="login-wrapper">
+  <div class="login-container">
+
+    <div class="login-brand">
+      <mat-icon class="brand-icon">person_search</mat-icon>
+      <h1>Leads<span>App</span></h1>
+      <p>Gerencie seus leads com eficiência</p>
+    </div>
+
+    <mat-card class="login-card">
+      <mat-card-content>
+        <h2>Entrar</h2>
+
+        <div class="alert alert-danger" *ngIf="error">
+          <mat-icon>error_outline</mat-icon> {{ error }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Usuário</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="username" placeholder="Digite seu usuário" />
+            <mat-error *ngIf="form.get('username')?.hasError('required')">Usuário obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Senha</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="form.get('password')?.hasError('required')">Senha obrigatória</mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" class="w-100 btn-login" [disabled]="loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">Entrar</span>
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

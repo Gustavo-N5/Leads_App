@@ -16,8 +16,10 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(req: LoginRequest): Observable<LoginResponse> {
+    console.log('Login request:', req);
     return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, req).pipe(
       tap(res => {
+        console.log(res);
         localStorage.setItem(this.TOKEN_KEY, res.token);
         localStorage.setItem(this.USER_KEY, res.username);
         this.isAuthenticatedSubject.next(true);
