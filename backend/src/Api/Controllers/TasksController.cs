@@ -1,10 +1,12 @@
 ﻿using Application.DTOs;
 using Application.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/leads/{leadId:int}/tasks")]
 [Produces("application/json")]

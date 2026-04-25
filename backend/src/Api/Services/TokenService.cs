@@ -11,7 +11,7 @@ public class TokenService(IConfiguration config)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Secret"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.UtcNow.AddMinutes(double.Parse(config["Jwt:ExpiresInMinutes"]!));
+        var expires = DateTime.UtcNow.AddDays(double.Parse(config["Jwt:ExpiresInDays"]!));
 
         var token = new JwtSecurityToken(
             issuer: config["Jwt:Issuer"],
