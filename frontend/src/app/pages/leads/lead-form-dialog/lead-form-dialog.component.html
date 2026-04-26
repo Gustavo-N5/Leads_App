@@ -1,0 +1,52 @@
+<div class="dialog-header" [ngClass]="isEdit ? 'header-edit' : 'header-create'">
+  <div class="dialog-header-icon">
+    <mat-icon>{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
+  </div>
+  <div>
+    <h2>{{ isEdit ? 'Editar Lead' : 'Novo Lead' }}</h2>
+    <p>{{ isEdit ? 'Atualize as informações do lead' : 'Preencha os dados para criar um novo lead' }}</p>
+  </div>
+  <button mat-icon-button mat-dialog-close class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-body">
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nome completo</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="name" placeholder="Ex: João Silva" />
+      <mat-error *ngIf="form.get('name')?.hasError('required')">Nome obrigatório</mat-error>
+      <mat-error *ngIf="form.get('name')?.hasError('minlength')">Mínimo 3 caracteres</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>E-mail</mat-label>
+      <mat-icon matPrefix>email</mat-icon>
+      <input matInput formControlName="email" placeholder="email@empresa.com" type="email" />
+      <mat-error *ngIf="form.get('email')?.hasError('required')">E-mail obrigatório</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">E-mail inválido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Status</mat-label>
+      <mat-icon matPrefix>flag</mat-icon>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let s of statuses" [value]="s">
+          {{ statusLabels[s] }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button [color]="isEdit ? 'accent' : 'primary'"
+    (click)="submit()" [disabled]="loading || form.invalid" class="btn-submit">
+    <mat-spinner diameter="18" *ngIf="loading"></mat-spinner>
+    <mat-icon *ngIf="!loading">{{ isEdit ? 'save' : 'add' }}</mat-icon>
+    <span>{{ isEdit ? 'Salvar alterações' : 'Criar lead' }}</span>
+  </button>
+</mat-dialog-actions>

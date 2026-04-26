@@ -1,1 +1,211 @@
-<p>leads works!</p>
+<app-navbar></app-navbar>
+
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Leads</h1>
+      <p class="subtitle">
+        {{ total }} prospect{{ total !== 1 ? "s" : "" }} encontrado{{
+          total !== 1 ? "s" : ""
+        }}
+      </p>
+    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      class="btn-new"
+      (click)="openCreate()"
+    >
+      <mat-icon>add</mat-icon> Novo Lead
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filter-card" [formGroup]="filterForm">
+    <mat-card-content>
+      <div class="filter-row">
+        <mat-form-field appearance="outline" class="filter-search">
+          <mat-label>Buscar</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            formControlName="search"
+            placeholder="Nome ou e-mail..."
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            *ngIf="filterForm.get('search')?.value"
+            (click)="filterForm.patchValue({ search: '' })"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-status">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">Todos</mat-option>
+            <mat-option *ngFor="let s of statuses" [value]="s">
+              <span
+                class="option-dot"
+                [ngClass]="'dot-' + s.toLowerCase()"
+              ></span>
+              {{ statusLabels[s] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+       <button class="btn-clear" (click)="clearFilters()" matTooltip="Limpar filtros">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+      </div>
+
+      <!-- Status chips rápidos -->
+      <div class="quick-filters">
+        <span class="quick-label">Filtrar:</span>
+        <button
+          *ngFor="let s of statuses"
+          mat-stroked-button
+          class="chip-btn"
+          [ngClass]="getChipClasses(s)"
+          (click)="
+            filterForm.patchValue({
+              status: filterForm.get('status')?.value === s ? '' : s,
+            })
+          "
+        >
+          {{ statusLabels[s] }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabela -->
+  <mat-card class="table-card">
+    <mat-progress-bar
+      mode="indeterminate"
+      *ngIf="loading"
+      class="progress-bar"
+    ></mat-progress-bar>
+
+    <table mat-table [dataSource]="leads" class="leads-table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Lead</th>
+        <td mat-cell *matCellDef="let l">
+          <div class="lead-info">
+            <div class="avatar" [ngClass]="'avatar-' + l.name[0].toLowerCase()">
+              {{ l.name[0].toUpperCase() }}
+            </div>
+            <div class="lead-text">
+              <span class="lead-name">{{ l.name }}</span>
+              <span class="lead-email">{{ l.email }}</span>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let l">
+          <span
+            class="status-badge"
+            [ngClass]="'badge-' + l.status.toLowerCase()"
+          >
+            <span class="badge-dot"></span>
+            {{ getStatusLabel(l.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tasks">
+        <th mat-header-cell *matHeaderCellDef>Tasks</th>
+        <td mat-cell *matCellDef="let l">
+          <div
+            class="tasks-chip"
+            [ngClass]="l.tasksCount > 0 ? 'has-tasks' : 'no-tasks'"
+          >
+            <mat-icon>{{
+              l.tasksCount > 0 ? "task_alt" : "radio_button_unchecked"
+            }}</mat-icon>
+            {{ l.tasksCount }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Criado em</th>
+        <td mat-cell *matCellDef="let l">
+          <div class="date-cell">
+            <mat-icon>calendar_today</mat-icon>
+            {{ l.createdAt | date: "dd/MM/yyyy" }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header">Ações</th>
+        <td mat-cell *matCellDef="let l" class="actions-cell">
+          <button
+            mat-icon-button
+            class="menu-btn"
+            [matMenuTriggerFor]="actionMenu"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actionMenu="matMenu" class="action-menu">
+            <button mat-menu-item (click)="goToDetail(l.id)">
+              <mat-icon color="primary">task_alt</mat-icon>
+              <span>Ver Tasks</span>
+            </button>
+            <button mat-menu-item (click)="openEdit(l)">
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button
+              mat-menu-item
+              class="delete-item"
+              (click)="confirmDelete(l)"
+            >
+              <mat-icon color="warn">delete</mat-icon>
+              <span>Excluir</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="table-row"
+        (click)="goToDetail(row.id)"
+      ></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data" colspan="5">
+          <div class="empty-state" *ngIf="!loading">
+            <mat-icon>person_search</mat-icon>
+            <h3>Nenhum lead encontrado</h3>
+            <p>Tente ajustar os filtros ou crie um novo lead</p>
+            <button mat-raised-button color="primary" (click)="openCreate()">
+              <mat-icon>add</mat-icon> Criar primeiro lead
+            </button>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="total"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      class="paginator"
+    ></mat-paginator>
+  </mat-card>
+</div>
