@@ -1,95 +1,104 @@
 <app-navbar></app-navbar>
 
-<div class="page-container" *ngIf="!loading && lead">
+<div class="container-xl py-4 px-3 px-md-4" *ngIf="!loading && lead">
 
   <!-- Header -->
-  <div class="detail-header">
-    <button mat-icon-button (click)="router.navigate(['/leads'])" class="back-btn">
+  <div class="d-flex align-items-start align-items-md-center gap-3 mb-4 flex-wrap">
+    <button mat-icon-button (click)="router.navigate(['/leads'])" class="back-btn flex-shrink-0">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div class="lead-avatar" [ngClass]="'avatar-' + lead.name[0].toLowerCase()">
+    <div class="lead-avatar flex-shrink-0" [ngClass]="'avatar-' + lead.name[0].toLowerCase()">
       {{ lead.name[0].toUpperCase() }}
     </div>
-    <div class="lead-info">
-      <h1>{{ lead.name }}</h1>
-      <div class="lead-meta">
-        <span><mat-icon>email</mat-icon> {{ lead.email }}</span>
+    <div class="lead-info flex-grow-1">
+      <h1 class="lead-title mb-1">{{ lead.name }}</h1>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="d-flex align-items-center gap-1 text-muted small">
+          <mat-icon style="font-size:14px;width:14px;height:14px">email</mat-icon>
+          {{ lead.email }}
+        </span>
         <span class="status-badge" [ngClass]="getLeadStatusClass()">
           <span class="badge-dot"></span>{{ getLeadStatusLabel() }}
         </span>
-        <span><mat-icon>calendar_today</mat-icon> {{ lead.createdAt | date:'dd/MM/yyyy' }}</span>
+        <span class="d-flex align-items-center gap-1 text-muted small">
+          <mat-icon style="font-size:14px;width:14px;height:14px">calendar_today</mat-icon>
+          {{ lead.createdAt | date:'dd/MM/yyyy' }}
+        </span>
       </div>
     </div>
-    <button mat-raised-button color="primary" class="btn-task" (click)="openCreateTask()">
+    <button mat-raised-button color="primary"  class="btn-task mt-3 mt-md-0 ms-md-auto" (click)="openCreateTask()">
       <mat-icon>add</mat-icon> Nova Task
     </button>
   </div>
 
   <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card" *ngFor="let g of taskGroups">
-      <div class="stat-icon" [ngClass]="'icon-' + g.color">
-        <mat-icon>{{ g.icon }}</mat-icon>
-      </div>
-      <div>
-        <div class="stat-value">{{ getTasksByStatus(g.status).length }}</div>
-        <div class="stat-label">{{ g.label }}</div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3" *ngFor="let g of taskGroups">
+      <div class="stat-card">
+        <div class="stat-icon" [ngClass]="'icon-' + g.color">
+          <mat-icon>{{ g.icon }}</mat-icon>
+        </div>
+        <div>
+          <div class="stat-value">{{ getTasksByStatus(g.status).length }}</div>
+          <div class="stat-label">{{ g.label }}</div>
+        </div>
       </div>
     </div>
-    <div class="stat-card stat-total">
-      <div class="stat-icon icon-total"><mat-icon>list_alt</mat-icon></div>
-      <div>
-        <div class="stat-value">{{ tasks.length }}</div>
-        <div class="stat-label">Total</div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon icon-total"><mat-icon>list_alt</mat-icon></div>
+        <div>
+          <div class="stat-value">{{ tasks.length }}</div>
+          <div class="stat-label">Total</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Kanban Tasks -->
-  <div class="kanban">
-    <div class="kanban-col" *ngFor="let g of taskGroups">
-      <div class="col-header" [ngClass]="'col-' + g.color">
-        <mat-icon>{{ g.icon }}</mat-icon>
-        <span>{{ g.label }}</span>
-        <span class="col-count">{{ getTasksByStatus(g.status).length }}</span>
-      </div>
-
-      <div class="col-body">
-        <div class="empty-col" *ngIf="getTasksByStatus(g.status).length === 0">
-          <mat-icon>inbox</mat-icon>
-          <p>Sem tarefas</p>
+  <!-- Kanban -->
+  <div class="row g-3">
+    <div class="col-12 col-md-4" *ngFor="let g of taskGroups">
+      <div class="kanban-col h-100">
+        <div class="col-header" [ngClass]="'col-' + g.color">
+          <mat-icon>{{ g.icon }}</mat-icon>
+          <span>{{ g.label }}</span>
+          <span class="col-count">{{ getTasksByStatus(g.status).length }}</span>
         </div>
-
-        <div class="task-card" *ngFor="let t of getTasksByStatus(g.status)"
-          [ngClass]="{'overdue': isOverdue(t.dueDate) && t.status !== 'Done'}">
-          <div class="task-header">
-            <span class="task-title">{{ t.title }}</span>
-            <button mat-icon-button [matMenuTriggerFor]="taskMenu">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #taskMenu="matMenu">
-              <button mat-menu-item (click)="openEditTask(t)">
-                <mat-icon>edit</mat-icon> Editar
-              </button>
-              <mat-divider></mat-divider>
-              <ng-container *ngFor="let sg of taskGroups">
-                <button mat-menu-item *ngIf="sg.status !== t.status" (click)="quickUpdateStatus(t, sg.status)">
-                  <mat-icon>{{ sg.icon }}</mat-icon> Mover para {{ sg.label }}
-                </button>
-              </ng-container>
-              <mat-divider></mat-divider>
-              <button mat-menu-item (click)="confirmDeleteTask(t)">
-                <mat-icon color="warn">delete</mat-icon> Excluir
-              </button>
-            </mat-menu>
+        <div class="col-body">
+          <div class="empty-col" *ngIf="getTasksByStatus(g.status).length === 0">
+            <mat-icon>inbox</mat-icon>
+            <p>Sem tarefas</p>
           </div>
-
-          <div class="task-due" 
-            *ngIf="hasValidDueDate(t.dueDate)"
-            [ngClass]="{'due-overdue': isOverdue(t.dueDate) && t.status !== 'Done'}">
-            <mat-icon>schedule</mat-icon>
-            {{ t.dueDate | date:'dd/MM/yyyy' }}
-            <span *ngIf="isOverdue(t.dueDate) && t.status !== 'Done'" class="overdue-tag">Atrasada</span>
+          <div class="task-card" *ngFor="let t of getTasksByStatus(g.status)"
+            [ngClass]="{'overdue': isOverdue(t.dueDate) && t.status !== 'Done'}">
+            <div class="task-header">
+              <span class="task-title">{{ t.title }}</span>
+              <button mat-icon-button [matMenuTriggerFor]="taskMenu" class="task-menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #taskMenu="matMenu">
+                <button mat-menu-item (click)="openEditTask(t)">
+                  <mat-icon>edit</mat-icon> Editar
+                </button>
+                <mat-divider></mat-divider>
+                <ng-container *ngFor="let sg of taskGroups">
+                  <button mat-menu-item *ngIf="sg.status !== t.status" (click)="quickUpdateStatus(t, sg.status)">
+                    <mat-icon>{{ sg.icon }}</mat-icon> Mover para {{ sg.label }}
+                  </button>
+                </ng-container>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="confirmDeleteTask(t)">
+                  <mat-icon color="warn">delete</mat-icon> Excluir
+                </button>
+              </mat-menu>
+            </div>
+            <div class="task-due"
+              *ngIf="hasValidDueDate(t.dueDate)"
+              [ngClass]="{'due-overdue': isOverdue(t.dueDate) && t.status !== 'Done'}">
+              <mat-icon>schedule</mat-icon>
+              {{ t.dueDate | date:'dd/MM/yyyy' }}
+              <span *ngIf="isOverdue(t.dueDate) && t.status !== 'Done'" class="overdue-tag">Atrasada</span>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +106,6 @@
   </div>
 </div>
 
-<div class="loading-state" *ngIf="loading">
+<div class="py-5" *ngIf="loading">
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 </div>
