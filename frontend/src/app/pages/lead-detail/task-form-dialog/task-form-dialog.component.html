@@ -1,0 +1,54 @@
+<div class="dialog-header" [ngClass]="isEdit ? 'header-edit' : 'header-create'">
+  <div class="dialog-header-icon">
+    <mat-icon>{{ isEdit ? 'edit' : 'add_task' }}</mat-icon>
+  </div>
+  <div>
+    <h2>{{ isEdit ? 'Editar Task' : 'Nova Task' }}</h2>
+    <p>{{ isEdit ? 'Atualize os dados da tarefa' : 'Adicione uma nova tarefa ao lead' }}</p>
+  </div>
+  <button mat-icon-button mat-dialog-close class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-body">
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Título</mat-label>
+      <mat-icon matPrefix>title</mat-icon>
+      <input matInput formControlName="title" placeholder="Ex: Enviar proposta" />
+      <mat-error *ngIf="form.get('title')?.hasError('required')">Título obrigatório</mat-error>
+      <mat-error *ngIf="form.get('title')?.hasError('minlength')">Mínimo 3 caracteres</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Data de vencimento</mat-label>
+      <mat-icon matPrefix>calendar_today</mat-icon>
+      <input matInput
+        [matDatepicker]="picker"
+        [min]="minDate"
+        formControlName="dueDate"
+        readonly
+        placeholder="dd/mm/aaaa" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Status</mat-label>
+      <mat-icon matPrefix>flag</mat-icon>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let s of statuses" [value]="s">{{ statusLabels[s] }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button [color]="isEdit ? 'accent' : 'primary'"
+    (click)="submit()" [disabled]="form.invalid" class="btn-submit">
+    <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+    <span>{{ isEdit ? 'Salvar' : 'Criar task' }}</span>
+  </button>
+</mat-dialog-actions>
